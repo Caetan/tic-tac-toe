@@ -4,6 +4,14 @@ import "./Board.scss";
 import WinnerModal from './WinnerModal';
 
 
+const requestOptions = (body) => ({
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
 function calculateWinner(squares) {
   const winnerLines = [
     [0, 1, 2],
@@ -29,7 +37,9 @@ const Board = () => {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
 
-  const handleClick = (index) => {
+  const handleClick = async (index) => {
+    console.log(await fetch(`http://127.0.0.1:5000/status`));
+    console.log(await fetch("http://127.0.0.1:5000/move", requestOptions({"message": "This is a MOVE body"})));
     const newBoard = board.slice();
     if (calculateWinner(newBoard) || newBoard[index]) {
       return;
@@ -50,9 +60,10 @@ const Board = () => {
   const winner = calculateWinner(board);
   const status = winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`;
 
-  const resetBoard = () => {
+  const resetBoard = async () => {
     setBoard(Array(9).fill(null));
     setXIsNext(true);
+    console.log(await fetch("http://127.0.0.1:5000/create", requestOptions({"message": "This is a MOVE body"})));
   }
 
   return (
