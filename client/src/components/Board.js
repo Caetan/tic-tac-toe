@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, Grid, Segment, Header, Dimmer, Loader} from 'semantic-ui-react';
+import {Button, Grid, Segment, Header, Dimmer, Loader, Message} from 'semantic-ui-react';
 import "./Board.scss";
 // import WinnerModal from './WinnerModal';
 
@@ -18,6 +18,8 @@ const Board = () => {
   const [status, setStatus] = useState({"currentPlayer": "X"});
   const [matchId, setMatchId] = useState();
   const [loading, setLoading] = useState(false);
+  const [board, setBoard] = useState(Array(9).fill(null));
+  const [error, setError] = useState();
 
   const startNewGame = async () => {
     try {
@@ -26,15 +28,16 @@ const Board = () => {
       setMatchId(response.matchId)
       setStatus({"currentPlayer": "X"})
     } catch (error) {
-      console.error('Error creating new game:', error);
+      console.error("Error creating new game:", error);
+      setError(`Error creating new game: ${error}`);
     } finally {
       setLoading(false);
     }
   };
-  const [board, setBoard] = useState(Array(9).fill(null));
 
   const handleClick = async (x, y) => {
     const squareNumber = x * 3 + y + 1;
+    setError();
 
     try {
       setLoading(true);
@@ -44,7 +47,8 @@ const Board = () => {
         "square": {"x": x, "y": y}
       }))).json();
       if (moveResponse.error) {
-        console.error('Error handling move:', moveResponse.error);
+        console.error("Error handling move:", moveResponse.error);
+        setError(`Error handling move: ${moveResponse.error}`);
         return
       }
       const newBoard = board.slice();
@@ -52,8 +56,14 @@ const Board = () => {
       setBoard(newBoard);
       const statusResponse = await (await fetch(`${api}status?matchId=${matchId}`)).json()
       setStatus(statusResponse)
+      if (statusResponse.error) {
+        console.error("Error getting the status:", statusResponse.error);
+        setError(`Error getting the status: ${statusResponse.error}`);
+        return
+      }
     } catch (error) {
-      console.error('Error handling move:', error);
+      console.error("Error:", error);
+      setError(`Error: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -62,7 +72,7 @@ const Board = () => {
   const renderSquare = (x, y) => {
     const squareNumber = x * 3 + y + 1;
     return (
-      <Button key={squareNumber} disabled={!matchId || status.gameOver} size='big' className="square" onClick={() => handleClick(x, y)}>
+      <Button key={squareNumber} disabled={!matchId || status.gameOver} size="big" className="square" onClick={() => handleClick(x, y)}>
         {board[squareNumber - 1]}
       </Button>
     );
@@ -71,6 +81,7 @@ const Board = () => {
   const resetBoard = async () => {
     setBoard(Array(9).fill(null));
     startNewGame();
+    setError();
   }
 
   const showStatus = () => {
@@ -94,6 +105,9 @@ const Board = () => {
       </Grid>
       <Header as="h2" textAlign="center">
         {showStatus()}
+        {error && (
+          <Message error>{error}</Message>
+        )}
       </Header>
       {loading ? (
         <Dimmer active>
