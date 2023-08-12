@@ -1,85 +1,111 @@
 import React, {useState} from 'react';
-import {Button, Grid, Segment, Header} from 'semantic-ui-react';
+import {Button, Grid, Segment, Header, Dimmer, Loader} from 'semantic-ui-react';
 import "./Board.scss";
-import WinnerModal from './WinnerModal';
+// import WinnerModal from './WinnerModal';
 
 
 const requestOptions = (body) => ({
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(body),
+});
 
-function calculateWinner(squares) {
-  const winnerLines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < winnerLines.length; i++) {
-    const [a, b, c] = winnerLines[i];
-    // Check if anyone is in a winner line
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
-}
+const api = "http://127.0.0.1:5000/"
 
 const Board = () => {
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const [xIsNext, setXIsNext] = useState(true);
+  const [status, setStatus] = useState({"currentPlayer": "X"});
+  const [matchId, setMatchId] = useState();
+  const [loading, setLoading] = useState(false);
 
-  const handleClick = async (index) => {
-    console.log(await fetch(`http://127.0.0.1:5000/status`));
-    console.log(await fetch("http://127.0.0.1:5000/move", requestOptions({"message": "This is a MOVE body"})));
-    const newBoard = board.slice();
-    if (calculateWinner(newBoard) || newBoard[index]) {
-      return;
+  const startNewGame = async () => {
+    try {
+      setLoading(true);
+      const response = await (await fetch(`${api}create`, requestOptions())).json();
+      setMatchId(response.matchId)
+      setStatus({"currentPlayer": "X"})
+    } catch (error) {
+      console.error('Error creating new game:', error);
+    } finally {
+      setLoading(false);
     }
-    newBoard[index] = xIsNext ? 'X' : 'O';
-    setBoard(newBoard);
-    setXIsNext(!xIsNext);
+  };
+  const [board, setBoard] = useState(Array(9).fill(null));
+
+  const handleClick = async (x, y) => {
+    const squareNumber = x * 3 + y + 1;
+
+    try {
+      setLoading(true);
+      const moveResponse = await (await fetch(`${api}move`, requestOptions({
+        "matchId": matchId,
+        "playerId": status.currentPlayer,
+        "square": {"x": x, "y": y}
+      }))).json();
+      if (moveResponse.error) {
+        console.error('Error handling move:', moveResponse.error);
+        return
+      }
+      const newBoard = board.slice();
+      newBoard[squareNumber - 1] = status.currentPlayer;
+      setBoard(newBoard);
+      const statusResponse = await (await fetch(`${api}status?matchId=${matchId}`)).json()
+      setStatus(statusResponse)
+    } catch (error) {
+      console.error('Error handling move:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const renderSquare = (index) => {
+  const renderSquare = (x, y) => {
+    const squareNumber = x * 3 + y + 1;
     return (
-      <Button key={index} size='big' className="square" onClick={() => handleClick(index)}>
-        {board[index]}
+      <Button key={squareNumber} disabled={!matchId || status.gameOver} size='big' className="square" onClick={() => handleClick(x, y)}>
+        {board[squareNumber - 1]}
       </Button>
     );
   };
 
-  const winner = calculateWinner(board);
-  const status = winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`;
-
   const resetBoard = async () => {
     setBoard(Array(9).fill(null));
-    setXIsNext(true);
-    console.log(await fetch("http://127.0.0.1:5000/create", requestOptions({"message": "This is a MOVE body"})));
+    startNewGame();
+  }
+
+  const showStatus = () => {
+    if (!matchId) {
+      return "Game not started"
+    }
+    if (status.gameOver) {
+      return status.winner ? `Winner: ${status.winner}` : "Tie"
+    }
+    return `Current player: ${status.currentPlayer}`
   }
 
   return (
     <Segment>
       <Grid columns={3} centered>
         {[0, 1, 2].map((row) => (
-          <Grid.Row key={row}>{[0, 1, 2].map((col) => renderSquare(row * 3 + col))}</Grid.Row>
+          <Grid.Row key={row}>
+            {[0, 1, 2].map((col) => renderSquare(row, col))}
+          </Grid.Row>
         ))}
       </Grid>
       <Header as="h2" textAlign="center">
-        {status}
+        {showStatus()}
       </Header>
-      {status && (
-        <Button content="Reset" onClick={() => resetBoard()} />
-      )}
-      {/* {status && <WinnerModal winner/>} */}
+      {loading ? (
+        <Dimmer active>
+          <Loader />
+        </Dimmer>
+      ) : (
+        <>
+          <Button content={(!matchId) ? "Start New Game" : "Restart Game"} onClick={() => resetBoard()} />
+        </>
+        // {status && <WinnerModal winner/>}
+      )
+      }
     </Segment>
   );
 }
