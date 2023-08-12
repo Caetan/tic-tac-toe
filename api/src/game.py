@@ -4,8 +4,8 @@ class GameError(Exception):
 class Game:
     def __init__(self):
         self.match_id = str(hash(self))
-        self.board = [[' ' for _ in range(3)] for _ in range(3)]
-        self.current_player = 'X'
+        self.board = [[" " for _ in range(3)] for _ in range(3)]
+        self.current_player = "X"
         self.game_over = False
         self.winner = None
 
@@ -23,10 +23,10 @@ class Game:
 
         for win_line in winning_combinations:
             marks = [self.board[x][y] for x, y in win_line]
-            if all(mark == 'X' for mark in marks):
-                return 'X'
-            elif all(mark == 'O' for mark in marks):
-                return 'O'
+            if all(mark == "X" for mark in marks):
+                return "X"
+            elif all(mark == "O" for mark in marks):
+                return "O"
 
         return None
 
@@ -34,7 +34,7 @@ class Game:
     def check_tie(self):
         for row in self.board:
             for square in row:
-                if square == ' ':
+                if square == " ":
                     return False
         return True
 
@@ -43,11 +43,11 @@ class Game:
             raise GameError("Game is over")
         if player_id != self.current_player:
             raise GameError("It's not your turn")
-        if self.board[x][y] != ' ':
+        if self.board[x][y] != " ":
             raise GameError("Square already occupied")
 
         self.board[x][y] = player_id
-        self.current_player = 'X' if player_id == 'O' else 'O'
+        self.current_player = "X" if player_id == "O" else "O"
 
         winner = self.check_winner()
         if winner:
