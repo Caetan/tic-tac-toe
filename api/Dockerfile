@@ -7,4 +7,4 @@ RUN poetry install
 
 EXPOSE 5000
 
-CMD ["/bin/sh", "-c", "cd src && poetry run flask --app app.py --debug run"]
+CMD ["/bin/sh", "-c", "cd src && FLASK_RUN_HOST=0.0.0.0 FLASK_RUN_PORT=5000 poetry run flask --app app.py --debug run"]
