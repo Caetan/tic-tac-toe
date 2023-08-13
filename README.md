@@ -2,19 +2,30 @@
 
 ## How to run
 
-### Analytics microservice
+### Docker
+
+````
+make docker
+``````
+
+### Local
+
+#### Analytics microservice
 On one terminal (project root folder):
 ```bash
 make flask-server
 ```
 
-### Frontend portal
+#### Frontend portal
 On another terminal (project root folder):
 ```bash
 make app
 ```
 
 And start playing on http://localhost:3000
+
+
+Notice that the PostgreSQL container is not used, just deployed as an example of the full development environment.
 
 --------
 --------

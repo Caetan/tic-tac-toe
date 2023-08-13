@@ -12,7 +12,7 @@ const requestOptions = (body) => ({
   body: JSON.stringify(body),
 });
 
-const api = "http://127.0.0.1:5000/"
+const api = "http://localhost:5000/"
 
 const Board = () => {
   const [status, setStatus] = useState({"currentPlayer": "X"});
