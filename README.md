@@ -14,6 +14,8 @@ On another terminal (project root folder):
 make app
 ```
 
+And start playing on http://localhost:3000
+
 --------
 --------
 --------

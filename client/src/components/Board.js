@@ -22,9 +22,15 @@ const Board = () => {
   const [error, setError] = useState();
 
   const startNewGame = async () => {
+    setError();
     try {
       setLoading(true);
       const response = await (await fetch(`${api}create`, requestOptions())).json();
+      if (response.error) {
+        console.error("Error creating new game:", response.error);
+        setError(`Error creating new game: ${response.error}`);
+        return
+      }
       setMatchId(response.matchId)
       setStatus({"currentPlayer": "X"})
     } catch (error) {

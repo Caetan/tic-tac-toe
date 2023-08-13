@@ -1,3 +1,12 @@
+import logging
+import sys
+
+logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        stream=sys.stderr
+    )
+
 class GameError(Exception):
     pass
 
@@ -40,10 +49,13 @@ class Game:
 
     def move(self, player_id, x, y):
         if self.game_over:
+            logging.error("Match %s is finished", self.match_id)
             raise GameError("Game is over")
         if player_id != self.current_player:
+            logging.error("Match %s - it's not the player %s turn", self.match_id, player_id)
             raise GameError("It's not your turn")
         if self.board[x][y] != " ":
+            logging.error("Match %s - Player %s: Square %d-%d already occupied", self.match_id, player_id, x, y)
             raise GameError("Square already occupied")
 
         self.board[x][y] = player_id
