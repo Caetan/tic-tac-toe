@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Button, Grid, Segment, Header, Dimmer, Loader, Message} from 'semantic-ui-react';
 import "./Board.scss";
-// import WinnerModal from './WinnerModal';
+import WinnerModal from './WinnerModal';
 
 
 const requestOptions = (body) => ({
@@ -121,9 +121,9 @@ const Board = () => {
         </Dimmer>
       ) : (
         <>
-          <Button content={(!matchId) ? "Start New Game" : "Restart Game"} onClick={() => resetBoard()} />
+          <Button primary content={(!matchId) ? "Start New Game" : "Restart Game"} onClick={() => resetBoard()} />
+          {status.gameOver && <WinnerModal winner={status.winner} />}
         </>
-        // {status && <WinnerModal winner/>}
       )
       }
     </Segment>

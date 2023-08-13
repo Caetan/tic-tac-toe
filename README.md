@@ -4,9 +4,9 @@
 
 ### Docker
 
-````
+```bash
 make docker
-``````
+```
 
 ### Local
 
@@ -26,6 +26,8 @@ And start playing on http://localhost:3000
 
 
 Notice that the PostgreSQL container is not used, just deployed as an example of the full development environment.
+
+You can develop on a Docker container, the container will automatically reload with the code changes.
 
 --------
 --------
