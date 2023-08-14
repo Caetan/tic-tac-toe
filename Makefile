@@ -8,7 +8,12 @@ flask-server:
 app:
 	cd client && npm install && npm start
 
-# Run docker
-.PHONY: docker
-docker:
+# Build images and run docker
+.PHONY: docker-build-run
+docker-build-run:
 	COMPOSE_PROJECT_NAME=tic-tac-toe COMPOSE_HTTP_TIMEOUT=200 docker-compose -f docker-compose.yml up --force-recreate --build
+
+# Run docker
+.PHONY: docker-run
+docker-run:
+	COMPOSE_PROJECT_NAME=tic-tac-toe COMPOSE_HTTP_TIMEOUT=200 docker-compose -f docker-compose.yml up

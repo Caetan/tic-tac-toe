@@ -1,11 +1,11 @@
-# Tic tac toe
+# Tic tac toe - Caetán Tojeiro Carpente
 
 ## How to run
 
 ### Docker
 
 ```bash
-make docker
+make docker-build-run
 ```
 
 ### Local
