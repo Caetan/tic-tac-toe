@@ -1,0 +1,26 @@
+- I didn't manage the GitHub repo (no issues created, no MR comments, etc.). Simple Gitflow workflow applied.
+  - QA branch not used for simplicity. In the case of CI/CD deployments, a QA branch can be used for development and the main one for prod.
+- I just use plain commits, no conventional commits.
+- Single game for now.
+  - However, there is a unique match ID generated per game, which can be used for the DB:
+    - Initially, we can use a simple in-memory key–value database (match ID as key and the rest of the status as value).
+    - Once we implement the users feature, we would need to migrate to a relational DB (Postgres for example) for managing the relations between users and matches. 
+    - A PostgreSQL container is configured for local development (not used, only deployed).
+      - This PostgreSQL container has already tables created.
+  - We can use SQLAlchemy as the ORM for dealing with PostgreSQL.
+- I don't have experience in testing implementation :(
+  - From my little knowledge, I would use `pytest` for the backend and `playwright` for the frontend, for example.
+- Perhaps separate the backend and the frontend into 2 different repos.
+
+
+FRONTEND
+- No effort on CSS and styling and UI. I just used a UI library for simplicity (semantic-ui-react).
+- Missing different .envs for deploying into different environments (prod, qa, local...).
+
+
+BACKEND
+- There is no linting/prettier implemented for the backend.
+- There are no views since for simplicity all the endpoints are implemented on the app.py.
+- There is no backend validation.
+- Missing a `/ping` endpoint for container health checks and auto recoveries.
+- The current flask server is just for development, we can configure a Gunicorn server for a proper deployment (a WSGI server).

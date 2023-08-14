@@ -19,7 +19,7 @@ services:
       - '5432:5432'
     volumes:
       - database-data:/var/lib/postgresql/data/
-      - ./docker-scripts/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+      - ./api/docker-scripts/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
   app:
     container_name: app
     build:
